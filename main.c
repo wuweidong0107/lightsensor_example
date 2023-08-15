@@ -172,19 +172,19 @@ int main(int argc, char** argv)
             return -1;
         }      
     }
-    
-    if (lightsensor_close(ls) != 0) {
-        fprintf(stderr, "lightsensor_close(): %s\n", lightsensor_errmsg(ls));
-        return -1;
-    }
 
     while(read > 0) {
         struct input_event event;
-        if (lightsensor_read(ls, &event, 1, 10000) != 1) {
+        if (lightsensor_read(ls, &event, 1, 0) != 1) {
             fprintf(stderr, "lightsensor_close(): %s\n", lightsensor_errmsg(ls));
             return -1;
         }
         print_event(event.type, event.code, event.value, PRINT_LABELS);
+    }
+
+    if (lightsensor_close(ls) != 0) {
+        fprintf(stderr, "lightsensor_close(): %s\n", lightsensor_errmsg(ls));
+        return -1;
     }
 
     lightsensor_free(ls);
