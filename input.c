@@ -110,14 +110,15 @@ int input_read(input_t *in,  struct input_event ev[], size_t ev_len, int timeout
         if (ret == 0)
             break;
 
-        if ((ret = read(in->fd, &ev[ev_read], len) < 0))
+
+        if ((ret = read(in->fd, &ev[ev_read], len)) < 0)
             return _input_error(in, INPUT_ERROR_IO, errno, "Reading input device");
 
         /* Empty read */
         if (ret == 0 && len != 0)
             return _input_error(in, INPUT_ERROR_IO, 0, "Reading input device: unexpected empty read");
 
-        ev_read += ret;
+        ev_read++;
     }
     return ev_read;
 }

@@ -10,10 +10,10 @@
 static struct option opts[] = {
     { "lightsensor", 1, NULL, 'l' },
     { "input", 1, NULL, 'i' },
-	{ "enable", 1, NULL, 'e' },
-    { "read", 0, NULL, 'r' },
-	{ "help", 0, NULL, 'h' },
-	{ 0, 0, NULL, 0 }
+    { "enable", 1, NULL, 'e' },
+    { "read", 1, NULL, 'r' },
+    { "help", 0, NULL, 'h' },
+    { 0, 0, NULL, 0 }
 };
 
 enum {
@@ -104,19 +104,20 @@ static void print_event(int type, int code, int value, int print_flags)
     } else {
         printf("%04x %04x %08x", type, code, value);
     }
+     printf("\n");
 }
 
 static void usage(void)
 {
-	printf("Usage: lightsensor [OPTION...]\n");
-	printf("    -l, --lightsensor     char device path\n");
-	printf("    -i, --input           input device path\n");
-	printf("    -e, --enable          enable device\n");
+    printf("Usage: lightsensor [OPTION...]\n");
+    printf("    -l, --lightsensor     char device path\n");
+    printf("    -i, --input           input device path\n");
+    printf("    -e, --enable          enable device\n");
     printf("    -r, --read            read event\n");
-	printf("    -h, --help            show this help message\n");
-	printf("Example:\n");
-	printf("    lightsensor -l /dev/lightsensor -i /dev/input/event3 -e 1 -r\n");
-	exit(0);
+    printf("    -h, --help            show this help message\n");
+    printf("Example:\n");
+    printf("    lightsensor -l /dev/lightsensor -i /dev/input/event3 -e 1 -r\n");
+    exit(0);
 }
 
 int main(int argc, char** argv)
@@ -127,28 +128,28 @@ int main(int argc, char** argv)
     int read = 0;
 
     if (geteuid() != 0) {
-		printf("Need to run as root\n");
-		exit(1);
-	}
+        printf("Need to run as root\n");
+        exit(1);
+    }
 
     while((c = getopt_long(argc, argv, "l:i:e:r:h", opts, &option_index)) != -1) {
-    	switch(c) {
-    	case 'l':
-    		ls_path = optarg;
-    		break;
+        switch(c) {
+        case 'l':
+            ls_path = optarg;
+            break;
         case 'i':
-    		input_path = optarg;
-    		break;
-    	case 'e':
-    		enable = strtoul(optarg, NULL, 10);
-    		break;
+            input_path = optarg;
+            break;
+        case 'e':
+            enable = strtoul(optarg, NULL, 10);
+            break;
         case 'r':
-    		read = 1;
-    		break;
-    	case 'h':
-    		usage();
-    		break;
-    	}
+            read = strtoul(optarg, NULL, 10);
+            break;
+        case 'h':
+            usage();
+            break;
+        }
     }
 
     if (ls_path == NULL || input_path == NULL) {
@@ -173,13 +174,18 @@ int main(int argc, char** argv)
         }      
     }
 
+    int read_ev = 1;
+    if (read > 0) {
+        printf("waiting event...\n");
+    }
     while(read > 0) {
         struct input_event event;
-        if (lightsensor_read(ls, &event, 1, 0) != 1) {
-            fprintf(stderr, "lightsensor_close(): %s\n", lightsensor_errmsg(ls));
+        if (lightsensor_read(ls, &event, read_ev, -1) != read_ev) {
+            fprintf(stderr, "lightsensor_read(): %s\n", lightsensor_errmsg(ls));
             return -1;
         }
         print_event(event.type, event.code, event.value, PRINT_LABELS);
+        read--;
     }
 
     if (lightsensor_close(ls) != 0) {

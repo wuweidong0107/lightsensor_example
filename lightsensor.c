@@ -128,5 +128,9 @@ int lightsensor_set_enable(lightsensor_t* ls, unsigned int value)
 
 int lightsensor_read(lightsensor_t* ls,  struct input_event ev[], size_t ev_len, int timeout_ms)
 {
-    return input_read(ls->in, ev, ev_len, timeout_ms);
+    int ev_read = input_read(ls->in, ev, ev_len, timeout_ms);
+    if (ev_read < 0) {
+        return _lightsensor_error(ls, LIGHTSENSOR_ERROR_IO, errno, "Reading lightsensor");
+    }
+    return ev_read;
 }

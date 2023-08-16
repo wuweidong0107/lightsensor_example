@@ -1,35 +1,31 @@
 # Build
-```
+
+```Bash
 $ make
+$ make CROSS_COMPILE=aarch64-linux-    # for cross compile
 ```
 
 # Run
 ```Bash
-$ sudo ./led 
-Usage: led [OPTION...]
-  -l, list              list available led device
-  -p, path              led sysfs path
-  -w, --write           write to led
-  -h, --help            show this help message
+$ lightsensor
+Usage: lightsensor [OPTION...]
+    -l, --lightsensor     char device path
+    -i, --input           input device path
+    -e, --enable          enable device
+    -r, --read            read event
+    -h, --help            show this help message
+Example:
+    lightsensor -l /dev/lightsensor -i /dev/input/event3 -e 1 -r
 ```
 
 ```Bash
-$ sudo ./led -l
-phy0-led
-input2::numlock
-input27::scrolllock
-input27::numlock
-input2::capslock
-input27::capslock
-input2::scrolllock
-input27::kana
-input27::compose
-mmc0::
-```
-
-```Bash
-$ sudo ./led -p input2::capslock -w 1
-1
-$ sudo ./led -p input2::capslock -w 0
-0
+$ lightsensor -l /dev/lightsensor -i /dev/input/event3 -e 1 -r
+waiting event...          
+EV_SYN       SYN_REPORT           00000000            
+EV_ABS       ABS_MISC             00000000            
+EV_SYN       SYN_REPORT           00000000            
+EV_ABS       ABS_MISC             00000001            
+EV_SYN       SYN_REPORT           00000000            
+EV_ABS       ABS_MISC             00000004            
+EV_SYN       SYN_REPORT           00000000 
 ```
